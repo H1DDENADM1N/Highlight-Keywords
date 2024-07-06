@@ -5,7 +5,11 @@ description = "Default template for PDM package"
 authors = [
     {name = "H1DDENADM1N", email = "65646535+H1DDENADM1N@users.noreply.github.com"},
 ]
-dependencies = []
+dependencies = [
+    "pyside6==6.6.3.1",
+    "loguru>=0.7.2",
+    "ansi2html>=1.9.2",
+]
 requires-python = "==3.12.*"
 readme = "README.md"
 license = {text = "GPLv3"}
