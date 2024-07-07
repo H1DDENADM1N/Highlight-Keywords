@@ -5,19 +5,18 @@ SCRIPT_PATH: Path = Path(__file__).resolve().parent
 KEYWORDS_FILE: Path = SCRIPT_PATH / "KEYWORDS.txt"
 
 
-def get_keywords() -> frozenset:
+def get_keywords() -> frozenset[str]:
     if not KEYWORDS_FILE.exists():
         raise FileNotFoundError(f"关键词文件 {KEYWORDS_FILE} 不存在")
+    try:
+        with KEYWORDS_FILE.open("r", encoding="utf-8") as f:
+            keywords_list = [line.strip("\n") for line in f if line.strip("\n")]
+    except UnicodeDecodeError:
+        keywords_list = [
+            f"关键词文件 {KEYWORDS_FILE} 未能已 UTF-8 编码读取，请检查文件编码。"
+        ]
 
-    keywords_list: list = []
-    with KEYWORDS_FILE.open("r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                keywords_list.append(line)
-
-    # 去重和去除子串
-    unique_keywords = set()
+    unique_keywords: set[str] = set()
     for keyword in sorted(keywords_list, key=len, reverse=True):
         if not any(keyword in k for k in unique_keywords):
             unique_keywords.add(keyword)
@@ -27,9 +26,8 @@ def get_keywords() -> frozenset:
 
 # 定义策略接口
 class HighlightStrategy(ABC):
-    @abstractmethod
     def __init__(self, KEYWORDS: frozenset[str]):
-        pass
+        self._KEYWORDS = KEYWORDS
 
     @abstractmethod
     def highlight(self, content: str) -> str:
@@ -44,7 +42,6 @@ class HighlightStrategy(ABC):
 class MarkdownHighlightStrategy(HighlightStrategy):
     def __init__(self, KEYWORDS: frozenset[str]):
         super().__init__(KEYWORDS)
-        self._KEYWORDS = KEYWORDS
 
     def highlight(self, content: str) -> str:
         for keyword in self._KEYWORDS:
@@ -58,7 +55,6 @@ class MarkdownHighlightStrategy(HighlightStrategy):
 class TextHighlightStrategy(HighlightStrategy):
     def __init__(self, KEYWORDS: frozenset[str]):
         super().__init__(KEYWORDS)
-        self._KEYWORDS = KEYWORDS
 
     def highlight(self, content: str) -> str:
         for keyword in self._KEYWORDS:
@@ -72,7 +68,6 @@ class TextHighlightStrategy(HighlightStrategy):
 class HtmlHighlightStrategy(HighlightStrategy):
     def __init__(self, KEYWORDS: frozenset[str]):
         super().__init__(KEYWORDS)
-        self._KEYWORDS = KEYWORDS
 
     def highlight(self, content: str) -> str:
         for keyword in self._KEYWORDS:
