@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from loguru import logger
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QFileDialog, QWidget
 
 from .cmd_text_edit import CMDTextEdit
@@ -16,12 +17,16 @@ from .Ui_highlight_keywords import Ui_Form
 
 
 class HighlightKeywords(QWidget, Ui_Form):
-    def __init__(self):
+    def __init__(self, args: list[str]):
         super().__init__()
         self.setupUi(self)
+        self.setWindowIcon(QIcon("assets/icon.ico"))
+        self.setWindowOpacity(0.9)
         self.cte = CMDTextEdit()
         self.verticalLayout_2.addWidget(self.cte)
-        self.selected_path: Path = Path()
+        self.selected_paths: list[Path] = (
+            self.get_selected_paths_from_args(args) if args else []
+        )
         self.selected_strategy: str = self.comboBox_strategy.currentText()
         self.keywords: frozenset[str] = frozenset()
         self.initUI()
@@ -33,25 +38,44 @@ class HighlightKeywords(QWidget, Ui_Form):
         self.pushButton_edit_keywords.clicked.connect(self.edit_keywords)
         self.pushButton_execute.clicked.connect(self.execute)
 
+    def get_selected_paths_from_args(self, args: list[str]) -> list[Path]:
+        selected_paths: list[Path] = []
+        if len(args) > 1:
+            logger.info(f"检测到命令行参数：{args}\n")
+            for arg in args[1:]:
+                path = Path(arg)
+                if path.exists() and path.is_file():
+                    selected_paths.append(path)
+                else:
+                    logger.warning(f"命令行参数 {arg} 不是有效的文件路径，已忽略。\n")
+            self.plainTextEdit_selected_path.setPlainText(
+                f"已选择文件：\n{'\n'.join(args[1:])}"
+            )
+        return selected_paths
+
     def select_file(self):
-        file_path, _ = QFileDialog.getOpenFileName(
+        file_paths, _ = QFileDialog.getOpenFileNames(
             self, "选择文件", "", "All Files (*)"
         )
-        if file_path:
-            self.selected_path = Path(file_path)
-            self.label_selected_path.setText(f"已选择文件：{file_path}")
+        if file_paths:
+            self.selected_paths = [Path(file_path) for file_path in file_paths]
+            self.plainTextEdit_selected_path.setPlainText(
+                f"已选择文件：\n{'\n'.join(file_paths)}"
+            )
         else:
-            self.selected_path = Path()
-            self.label_selected_path.setText("已取消选择文件")
+            self.selected_paths = []
+            self.plainTextEdit_selected_path.setPlainText("已取消选择文件")
 
     def select_folder(self):
         folder_path = QFileDialog.getExistingDirectory(self, "选择文件夹", "")
         if folder_path:
-            self.selected_path = Path(folder_path)
-            self.label_selected_path.setText(f"已选择文件夹：{folder_path}")
+            self.selected_paths = [Path(folder_path)]
+            self.plainTextEdit_selected_path.setPlainText(
+                f"已选择文件夹：{folder_path}"
+            )
         else:
-            self.selected_path = Path()
-            self.label_selected_path.setText("已取消选择文件夹")
+            self.selected_paths = []
+            self.plainTextEdit_selected_path.setPlainText("已取消选择文件夹")
 
     def change_strategy(self):
         self.selected_strategy = self.comboBox_strategy.currentText()
@@ -61,6 +85,10 @@ class HighlightKeywords(QWidget, Ui_Form):
         self.cte.run_cmd(f"notepad.exe {KEYWORDS_FILE}")
 
     def execute(self):
+        if not self.selected_paths:
+            logger.info("请先选择文件或文件夹。\n")
+            return
+
         logger.info("开始执行高亮处理...\n")
 
         self.keywords = get_keywords()
@@ -79,23 +107,27 @@ class HighlightKeywords(QWidget, Ui_Form):
                 execute_strategy = MarkdownHighlightStrategy(self.keywords)
 
         try:
-            if self.selected_path.is_file():
-                logger.info(
-                    f"正在对文件 {self.selected_path} 进行高亮处理，策略为 {self.selected_strategy}...\n"
-                )
-                self.single_file_highlight(self.selected_path, execute_strategy)
+            for selected_path in self.selected_paths:
+                if selected_path.is_file():
+                    logger.info(
+                        f"正在对文件 {selected_path} 进行高亮处理，策略为 {self.selected_strategy}...\n"
+                    )
+                    self.single_file_highlight(selected_path, execute_strategy)
 
-            elif self.selected_path.is_dir():
-                logger.info(
-                    f"正在对文件夹 {self.selected_path} 内的所有文件进行高亮处理，策略为 {self.selected_strategy}...\n"
-                )
-                self.folder_files_highlight(self.selected_path, execute_strategy)
-            else:
-                logger.critical(
-                    "已选择的路径不是文件也不是目录，请检查路径是否正确。\n"
-                )
+                elif selected_path.is_dir():
+                    logger.info(
+                        f"正在对文件夹 {selected_path} 内的所有文件进行高亮处理，策略为 {self.selected_strategy}...\n"
+                    )
+                    self.folder_files_highlight(selected_path, execute_strategy)
+                else:
+                    logger.critical(
+                        "已选择的路径不是文件也不是目录，请检查路径是否正确。\n"
+                    )
         except AttributeError:
             logger.info("请先选择文件或文件夹。\n")
+        else:
+            logger.info("高亮处理执行完毕...\n")
+            self.cte.append_log("\x1b[94m\x1b[92m高亮处理执行完毕...\x1b[0m")
 
     def single_file_highlight(
         self, file_path: Path, execute_strategy: HighlightStrategy
@@ -131,8 +163,9 @@ class HighlightKeywords(QWidget, Ui_Form):
             self.single_file_highlight(file_path, execute_strategy)
 
 
-def gui():
-    app = QApplication([])
-    window = HighlightKeywords()
+def main(args: list[str]):
+    app = QApplication(args)
+    app.setStyle("Fusion")
+    window = HighlightKeywords(args)
     window.show()
     app.exec()

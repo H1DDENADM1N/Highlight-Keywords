@@ -1,6 +1,6 @@
 [project]
 name = "Highlight-Keywords"
-version = "0.1.0"
+version = "0.2.0"
 description = "Default template for PDM package"
 authors = [
     {name = "H1DDENADM1N", email = "65646535+H1DDENADM1N@users.noreply.github.com"},

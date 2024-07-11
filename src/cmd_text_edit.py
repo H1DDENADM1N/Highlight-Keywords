@@ -95,7 +95,7 @@ class CMDTextEdit(QWidget):
 
         # self.text_edit = TextEdit()
         self.text_edit = QTextEdit()
-        self.text_edit.setStyleSheet("background-color: white;")
+        self.text_edit.setStyleSheet("background-color: #2d2d2d;")
         self.text_edit.setReadOnly(True)
         # 设置文本框的颜色css样式
 

@@ -1,7 +1,6 @@
-# from src.cli import cli
+import sys
 
-from src.gui import gui
+from src.main import main
 
 if __name__ == "__main__":
-    # cli()
-    gui()
+    main(sys.argv)
