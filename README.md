@@ -1,4 +1,4 @@
-# ![alt text](assets/icon.ico){:width="50px" height="50px"} Highlight-Keywords
+# <img src="assets/icon.ico" alt="demo" width="50" height="50"> Highlight-Keywords
 
 ![alt text](assets/demo.png)
 
