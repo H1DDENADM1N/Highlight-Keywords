@@ -1,8 +1,8 @@
 @echo off
 chcp 65001 >nul
 
-REM 用于给 Highlight-Keywords-EmbeddedPython 版本 添加 系统级上下文菜单
-REM 从源码运行不要使用此脚本
+REM Used to add a system-level context menu for the Highlight-Keywords-EmbeddedPython version.
+REM Do not use this script when running from source
 
 pushd "%~dp0"
 reg query "HKU\S-1-5-19" >nul 2>&1 || (
@@ -10,12 +10,12 @@ reg query "HKU\S-1-5-19" >nul 2>&1 || (
 )
 
 :MENU
-echo 请先将文件夹移动到稳定的路径，再添加右键菜单项。
+echo Please move the folder to a stable path before adding the right-click menu item.
 
 echo.
-echo  1、添加资源管理器右键菜单项
+echo  1. Add Explorer right-click menu items
 echo.
-echo  2、移除资源管理器右键菜单项
+echo  2. Remove Explorer right-click menu items
 choice /C 123 /N >nul 2>nul
 if "%ERRORLEVEL%"=="2" goto RemoveMenu
 if "%ERRORLEVEL%"=="1" goto AddMenu
@@ -34,7 +34,7 @@ reg add "HKEY_CLASSES_ROOT\SystemFileAssociations\.ocr\shell\Item0" /f /v "Icon"
 reg add "HKEY_CLASSES_ROOT\SystemFileAssociations\.ocr\shell\Item0\command" /f /ve /d "%~dp0highlight_keywords.exe \"%%1\"" >nul
 
 echo.
-echo 添加完成
+echo Add Completed
 timeout /t 3 >nul
 cls
 goto MENU
@@ -56,7 +56,7 @@ reg delete "HKEY_CLASSES_ROOT\SystemFileAssociations\.ocr\shell\Item0" /f /v "MU
 reg delete "HKEY_CLASSES_ROOT\SystemFileAssociations\.ocr\shell\Item0" /f >nul 2>&1
 
 echo.
-echo 移除完成
+echo Remove Completed
 timeout /t 5 >nul
 cls
 goto MENU

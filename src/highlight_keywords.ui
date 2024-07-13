@@ -21,7 +21,7 @@
        <item>
         <widget class="QPushButton" name="pushButton_select_file">
          <property name="text">
-          <string>选择 文件 (F)</string>
+          <string>Select Files (F)</string>
          </property>
          <property name="shortcut">
           <string>F</string>
@@ -31,7 +31,7 @@
        <item>
         <widget class="QPushButton" name="pushButton_select_folder">
          <property name="text">
-          <string>选择 文件夹 (Shift + F)</string>
+          <string>Select Folder (Shift + F)</string>
          </property>
          <property name="shortcut">
           <string>Shift+F</string>
@@ -47,7 +47,7 @@
      <item>
       <widget class="QLabel" name="label_selected_path">
        <property name="text">
-        <string>已选择：</string>
+        <string>Selected Paths:</string>
        </property>
       </widget>
      </item>
@@ -83,7 +83,7 @@
      <item>
       <widget class="QLabel" name="label_strategy">
        <property name="text">
-        <string>高亮策略：</string>
+        <string>Highlight Strategy:</string>
        </property>
       </widget>
      </item>
@@ -113,7 +113,7 @@
      <item>
       <widget class="QPushButton" name="pushButton_edit_keywords">
        <property name="text">
-        <string>编辑 高亮关键字 (E)</string>
+        <string>Edit Highlight Keywords (E)</string>
        </property>
        <property name="shortcut">
         <string>E</string>
@@ -129,7 +129,7 @@
         </size>
        </property>
        <property name="text">
-        <string>执行 (Enter)</string>
+        <string>Execute (Enter)</string>
        </property>
        <property name="shortcut">
         <string>Return</string>
@@ -143,7 +143,7 @@
      <item>
       <widget class="QLabel" name="label_info">
        <property name="text">
-        <string>信息：</string>
+        <string>Information:</string>
        </property>
       </widget>
      </item>

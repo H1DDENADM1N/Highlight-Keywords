@@ -7,13 +7,13 @@ KEYWORDS_FILE: Path = SCRIPT_PATH / "KEYWORDS.txt"
 
 def get_keywords() -> frozenset[str]:
     if not KEYWORDS_FILE.exists():
-        raise FileNotFoundError(f"关键词文件 {KEYWORDS_FILE} 不存在")
+        raise FileNotFoundError(f"The keywords file {KEYWORDS_FILE} does not exist.")
     try:
         with KEYWORDS_FILE.open("r", encoding="utf-8") as f:
             keywords_list = [line.strip("\n") for line in f if line.strip("\n")]
     except UnicodeDecodeError:
         keywords_list = [
-            f"关键词文件 {KEYWORDS_FILE} 未能已 UTF-8 编码读取，请检查文件编码。"
+            f"The keyword file {KEYWORDS_FILE} could not be read in UTF-8 encoding, please check the file encoding."
         ]
 
     unique_keywords: set[str] = set()
@@ -24,7 +24,7 @@ def get_keywords() -> frozenset[str]:
     return frozenset(unique_keywords)
 
 
-# 定义策略接口
+# Defining the Strategy Interface
 class HighlightStrategy(ABC):
     def __init__(self, KEYWORDS: frozenset[str]):
         self._KEYWORDS = KEYWORDS
@@ -38,7 +38,7 @@ class HighlightStrategy(ABC):
         pass
 
 
-# 具体策略实现
+# Specific strategy implementation
 class MarkdownHighlightStrategy(HighlightStrategy):
     def __init__(self, KEYWORDS: frozenset[str]):
         super().__init__(KEYWORDS)

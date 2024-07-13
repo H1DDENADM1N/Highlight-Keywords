@@ -70,19 +70,19 @@ class CmdRunnerThread(QThread):
 @singleton
 class CMDTextEdit(QWidget):
     """
-    一个支持ANSI颜色代码的文本框
+    A QTextEdit Widget with ANSI color code support
 
-    Methods:
-        - append_log: 添加一行消息
-        - run_cmd: 运行一个cmd命令
+    Methods.
+        - append_log: Add a message.
+        - run_cmd: Run a cmd command.
 
-    Signals:
-        - append_signal: 添加消息的信号
+    Signals.
+        - append_signal: Adds a signal to a message.
 
-    Note:
-        - 颜色代码的转换使用了`loguru`和`ansi2html`库你需要安装这两个库
-        - 你可以直接使用`loguru`库的`logger`对象来输出日志, 会自动上色并显示在文本框中
-        - 你可以使用`run_cmd`方法来运行一个cmd命令
+    Note.
+        - The color code conversion depends on the `loguru` and `ansi2html` libraries which you need to pip install first.
+        - You can use the `loguru` library's `logger` object directly to output logs, which are automatically colored and displayed in a text box.
+        - You can use the `run_cmd` method to run a cmd command.
     """
 
     append_signal = Signal(str)
@@ -95,9 +95,9 @@ class CMDTextEdit(QWidget):
 
         # self.text_edit = TextEdit()
         self.text_edit = QTextEdit()
+        # Set the color of the text box CSS style
         self.text_edit.setStyleSheet("background-color: #2d2d2d;")
         self.text_edit.setReadOnly(True)
-        # 设置文本框的颜色css样式
 
         layout = QVBoxLayout()
         layout.addWidget(self.text_edit)
@@ -105,25 +105,25 @@ class CMDTextEdit(QWidget):
 
         self.append_signal.connect(self._append_log_slot)
 
-        # 为了方便直接绑定loguru
+        # To facilitate direct binding to loguru
         self._hook_loguru()
 
     def append_log(self, context: str) -> None:
-        """手动添加一行消息"""
+        """Manually add a one-line message"""
         self.append_signal.emit(self._ansi2html(context))
         # 将窗口滚动到底部
         self.text_edit.moveCursor(QTextCursor.MoveOperation.End)
 
     def run_cmd(self, command: Union[str, list[str]]) -> None:
-        """多线程运行一个cmd命令"""
+        """Running a cmd command in multiple threads"""
         self.cmd_thread = CmdRunnerThread(command, ".")
         self.cmd_thread.append_signal.connect(self._append_log_slot)
         self.cmd_thread.start()
 
     def _hook_loguru(self):
-        """绑定loguru"""
-        # 为了防止忘记导入loguru库
-        import loguru  # noqa: F811
+        """Configure the loguru logger to process log messages through a custom sink function and add the processed log messages to a text editor."""
+        # In order to prevent forgetting to import the loguru library
+        import loguru
 
         def sink(message):
             ansi_color_text = json.loads(str(message))
@@ -134,7 +134,7 @@ class CMDTextEdit(QWidget):
     def _append_log_slot(self, context: str) -> None:
         self.text_edit.moveCursor(QTextCursor.MoveOperation.End)
         self.text_edit.insertHtml(f"{context}<br>")
-        # 删除多余的空格
+        # Remove redundant spaces
         self.text_edit.moveCursor(QTextCursor.MoveOperation.End)
 
     def _ansi2html(self, ansi_content: str) -> str:
@@ -179,7 +179,7 @@ if __name__ == "__main__":
     loguru.logger.debug("This is a debug message")
     loguru.logger.critical("我是一段中文日志信息")
 
-    # 一个绿色的ANSI颜色代码
+    # A green ANSI color code
     # text = "\x1b[94m\x1b[92m我是一个绿色的字\x1b[0m"
     # cte.append_log(text)
 
